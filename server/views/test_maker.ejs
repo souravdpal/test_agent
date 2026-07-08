@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Q/A Test Builder — qna_tester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#181c1a;
+    --paper:#f2f0e8;
+    --paper-dim:#e7e4d8;
+    --line:#c9c4b2;
+    --teal:#3f8f83;
+    --teal-deep:#2c6a61;
+    --amber:#c17f2a;
+    --red:#b5493a;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--sans);
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:48px 24px 96px;
+  }
+  header.page{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:1px solid #3a3f3b;
+    padding-bottom:24px;
+    margin-bottom:32px;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:34px;
+    margin:0;
+    color:var(--paper);
+  }
+  .table-tag{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#9aa39c;
+    text-align:right;
+  }
+  .table-tag b{color:var(--paper);}
+
+  /* tabs */
+  .tabs{display:flex;gap:2px;margin-bottom:24px;}
+  .tab-btn{
+    flex:1;
+    background:#22261f;
+    border:1px solid #3a3f3b;
+    color:#9aa39c;
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.04em;
+    padding:14px 16px;
+    cursor:pointer;
+    text-transform:uppercase;
+  }
+  .tab-btn.active{
+    background:var(--paper);
+    color:var(--ink);
+    border-color:var(--paper);
+  }
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:#20241f;
+    border:1px solid #3a3f3b;
+    border-radius:3px;
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .card h2{
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--paper);
+  }
+  .card .hint{
+    font-size:13px;
+    color:#8f978f;
+    margin:0 0 18px;
+  }
+  label{
+    display:block;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#9aa39c;
+    margin-bottom:6px;
+  }
+  input[type=text], input[type=number], textarea, select{
+    width:100%;
+    background:var(--paper);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:10px 12px;
+    font-family:var(--sans);
+    font-size:14px;
+  }
+  textarea{resize:vertical;font-family:var(--mono);}
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .field{margin-bottom:16px;}
+
+  .btn{
+    font-family:var(--mono);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    border:1px solid var(--teal);
+    background:transparent;
+    color:var(--teal);
+    padding:10px 18px;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .btn:hover{background:rgba(63,143,131,0.12);}
+  .btn.primary{background:var(--teal);color:var(--ink);font-weight:600;}
+  .btn.primary:hover{background:var(--teal-deep);}
+  .btn.ghost{border-color:#4a4f4a;color:#9aa39c;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  .id-preview{
+    font-family:var(--mono);
+    font-size:13px;
+    background:#141712;
+    border:1px dashed #4a4f4a;
+    padding:10px 12px;
+    color:var(--teal);
+    border-radius:2px;
+    margin-top:4px;
+    word-break:break-all;
+  }
+
+  /* chips */
+  .chip-input{
+    display:flex;flex-wrap:wrap;gap:8px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:8px;
+    min-height:44px;
+  }
+  .chip{
+    background:var(--teal);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:12px;
+    padding:4px 8px;
+    border-radius:2px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .chip button{
+    background:none;border:none;color:var(--ink);cursor:pointer;font-weight:700;
+  }
+  .chip-input input{
+    flex:1;min-width:120px;border:none;background:transparent;padding:6px;
+  }
+  .chip-input input:focus{outline:none;}
+
+  /* question builder */
+  .progress{
+    font-family:var(--mono);font-size:12px;color:#9aa39c;margin-bottom:14px;
+  }
+  .option-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .option-row input[type=text]{flex:1;}
+  .option-row input[type=radio]{transform:scale(1.2);accent-color:var(--teal);}
+  .option-row .remove-opt{
+    background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;
+  }
+
+  .q-summary-item{
+    border-top:1px solid #3a3f3b;
+    padding:12px 0;
+    font-size:13px;
+  }
+  .q-summary-item .qid{color:var(--teal);font-family:var(--mono);font-size:11px;}
+  .q-summary-item .qa{color:#9aa39c;}
+  .q-summary-item .del{
+    float:right;background:none;border:none;color:var(--red);cursor:pointer;font-family:var(--mono);font-size:11px;
+  }
+
+  pre.format-example{
+    background:#141712;
+    border:1px solid #3a3f3b;
+    color:#c9c4b2;
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:16px;
+    border-radius:2px;
+    overflow-x:auto;
+    line-height:1.5;
+  }
+
+  .drop{
+    border:1px dashed #4a4f4a;
+    border-radius:3px;
+    padding:28px;
+    text-align:center;
+    color:#9aa39c;
+    font-family:var(--mono);
+    font-size:13px;
+    margin-bottom:14px;
+  }
+  .drop.drag{border-color:var(--teal);color:var(--teal);}
+
+  .msg-list{list-style:none;padding:0;margin:12px 0 0;}
+  .msg-list li{
+    font-family:var(--mono);font-size:12.5px;
+    padding:6px 10px;margin-bottom:4px;border-radius:2px;
+  }
+  .msg-list li.err{background:rgba(181,73,58,0.15);color:#e08a7c;border:1px solid rgba(181,73,58,0.4);}
+  .msg-list li.ok{background:rgba(63,143,131,0.15);color:#7fd4c5;border:1px solid rgba(63,143,131,0.4);}
+
+  .toast{
+    position:fixed;bottom:24px;right:24px;max-width:360px;
+    background:var(--paper);color:var(--ink);
+    border-radius:3px;padding:16px 18px;
+    font-size:13px;box-shadow:0 12px 30px rgba(0,0,0,.4);
+    display:none;
+  }
+  .toast.show{display:block;}
+  .toast .t-title{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--teal-deep);margin-bottom:4px;}
+
+  code.k{color:var(--teal);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div>
+      <p class="eyebrow">question bank builder</p>
+      <h1>Q/A Test Builder</h1>
+    </div>
+    <div class="table-tag">writes to <b>qna_tester</b><br/>id = testname-duration-totalQ-index</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="manual">Manual builder</button>
+    <button class="tab-btn" data-tab="json">JSON upload</button>
+  </div>
+
+  <!-- ===================== MANUAL PANEL ===================== -->
+  <div class="panel active" id="panel-manual">
+
+    <div class="card" id="step1-card">
+      <h2>1. Define the test</h2>
+      <p class="hint">This builds the id prefix every question in this test will share.</p>
+      <div class="row">
+        <div class="field">
+          <label for="m-testname">Test name</label>
+          <input type="text" id="m-testname" placeholder="phyicstestfordavid" />
+        </div>
+        <div class="field">
+          <label for="m-duration">Duration (mins)</label>
+          <input type="number" id="m-duration" min="1" placeholder="90" />
+        </div>
+        <div class="field">
+          <label for="m-total">Total questions</label>
+          <input type="number" id="m-total" min="1" placeholder="4" />
+        </div>
+      </div>
+      <div class="id-preview" id="m-id-preview">id prefix will appear here…</div>
+      <div style="margin-top:16px;">
+        <button class="btn primary" id="m-continue-step1" disabled>Continue →</button>
+      </div>
+    </div>
+
+
+    <div class="card" id="step2-card" style="display:none;">
+      <h2>2. Who can access this test</h2>
+      <p class="hint">Type a user id and press Enter or comma to add it. This is stored as <code class="k">users_access</code>.</p>
+      <div class="chip-input" id="m-users-chipbox">
+        <input type="text" id="m-users-input" placeholder="add user id…" />
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn primary" id="m-start-questions">Start adding questions →</button>
+      </div>
+    </div>
+
+    <div class="card" id="step3-card" style="display:none;">
+      <h2>3. Add questions</h2>
+      <div class="progress" id="m-progress">Question 1 / N</div>
+      <div class="id-preview" id="m-current-id"></div>
+
+      <div class="field" style="margin-top:16px;">
+        <label for="m-qtext">Question text</label>
+        <textarea id="m-qtext" rows="2" placeholder="What is the acceleration due to gravity on Earth?"></textarea>
+      </div>
+
+      <label>Options (mark the correct one)</label>
+      <div id="m-options-list"></div>
+      <button class="btn ghost" id="m-add-option" type="button">+ add option</button>
+
+      <div style="margin-top:20px;display:flex;gap:10px;">
+        <button class="btn primary" id="m-add-question">Add question</button>
+      </div>
+
+      <div id="m-added-list"></div>
+    </div>
+
+    <div class="card" id="step4-card" style="display:none;">
+      <h2>4. Review &amp; submit</h2>
+      <p class="hint">All <span id="m-count-label"></span> questions captured. This posts the full payload to the server, which builds the SQL and inserts it into <code class="k">qna_tester</code>.</p>
+      <button class="btn primary" id="m-submit">Submit to server</button>
+      <ul class="msg-list" id="m-messages"></ul>
+    </div>
+
+  </div>
+
+  <!-- ===================== JSON PANEL ===================== -->
+  <div class="panel" id="panel-json">
+
+    <div class="card">
+      <h2>Expected JSON format</h2>
+      <p class="hint">Either format below is accepted — paste or upload one file.</p>
+
+      <p style="font-family:var(--mono);font-size:12px;color:var(--teal);margin:0 0 6px;">Recommended (structured):</p>
+      <pre class="format-example">{
+  "testName": "phyicstestfordavid",
+  "duration": 90,
+  "totalQuestions": 4,
+  "usersAccess": ["user_101", "user_204"],
+  "questions": [
+    {
+      "q": "What is the acceleration due to gravity on Earth?",
+      "options": ["9.8 m/s\u00b2", "1.6 m/s\u00b2", "3.0 x 10^8 m/s", "29.9 km/s"],
+      "a": "9.8 m/s\u00b2"
+    }
+  ]
+}</pre>
+
+      <p style="font-family:var(--mono);font-size:12px;color:var(--teal);margin:14px 0 6px;">Also accepted (legacy id-keyed — usersAccess asked separately):</p>
+      <pre class="format-example">{
+  "phyicstestfordavid-90-4-1": { "q": "...", "options": [...], "a": "..." },
+  "phyicstestfordavid-90-4-2": { "q": "...", "options": [...], "a": "..." }
+}</pre>
+    </div>
+
+    <div class="card">
+      <h2>Upload or paste</h2>
+      <div class="drop" id="j-drop">drag a .json file here, or click to choose one</div>
+      <input type="file" id="j-file" accept="application/json" style="display:none;" />
+      <textarea id="j-textarea" rows="10" placeholder="…or paste JSON here"></textarea>
+      <div style="margin-top:14px;">
+        <button class="btn primary" id="j-validate">Validate format</button>
+      </div>
+      <ul class="msg-list" id="j-messages"></ul>
+    </div>
+
+    <div class="card" id="j-users-card" style="display:none;">
+      <h2>Who can access this test</h2>
+      <p class="hint">This file didn't include <code class="k">usersAccess</code> — add allowed user ids here.</p>
+      <div class="chip-input" id="j-users-chipbox">
+        <input type="text" id="j-users-input" placeholder="add user id…" />
+      </div>
+    </div>
+
+    <div class="card" id="j-submit-card" style="display:none;">
+      <h2>Ready to submit</h2>
+      <p class="hint" id="j-summary"></p>
+      <button class="btn primary" id="j-submit">Submit to server</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast">
+  <div class="t-title" id="toast-title">Status</div>
+  <div id="toast-body"></div>
+</div>
+
+<script src="/js/test_make.js" defer></script>
+</body>
+</html>
